@@ -1,18 +1,23 @@
+const Transaction = require('./transaction.js');
 const Block = require('./block.js');
 
 class BlockChain
 {
-    constructor(difficulty)
+    constructor(difficulty, reward)
     {
-        this.chain  = [this.creategenesis()];
+        this.chain  = [];
         this.difficulty = difficulty;
+        this.unminedtransactions = [];
+        this.reward = reward;
+
+        this.creategenesis();
     }
 
     creategenesis()
     {
-        var date = new Date();
-        var timestamp  = date.getTime().toString();
-        return new Block(0, "15/01/2018", "Genesis Block", "0");
+        let genesistransaction = new Transaction(Date.now(), "mint", "genesis", 0);
+        let genesisblock =  new Block(Date.now(), [genesistransaction], "0");
+        this.chain.push(genesisblock);
     }
 
     getlatest()
@@ -20,11 +25,19 @@ class BlockChain
         return this.chain[this.chain.length - 1];
     }
 
-    add(block)
+    minecurrent(miner)
     {
-        block.previoushash = this.getlatest().hash;
+        let block = new Block(Date.now(), this.unminedtransactions, this.getlatest().hash);
         block.mine(this.difficulty);
+
+        console.log("Current Block Mined.");
+
         this.chain.push(block);
+        
+        this.unminedtransactions = [
+            new Transaction(Date.now(), "mint", miner, this.reward)
+        ];
+
     }
 
     isvalid()
@@ -44,6 +57,33 @@ class BlockChain
             }
         }
         return true;
+    }
+
+    make(transaction)
+    {
+        this.unminedtransactions.push(transaction);
+    }
+
+    getbalance(wallet)
+    {
+        let balance = 0;
+
+        for(const block of this.chain)
+        {
+            for(const transaction of block.data)
+            {
+                if (transaction.from === wallet)
+                {
+                    balance -= transaction.amout;
+                }
+
+                if (transaction.to === wallet)
+                {
+                    balance += transaction.amout;
+                }
+            }
+        }
+        return balance;
     }
 }
 

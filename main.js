@@ -2,19 +2,25 @@ const Transaction = require('./transaction.js');
 const Block = require('./block.js');
 const BlockChain = require('./blockchain.js');
 
-let date = new Date;
-let timestamp = date.getTime().toString();
-
 let difficulty = 4;
+let reward = 40;
 
-let chain = new BlockChain(difficulty);
+let chain = new BlockChain(difficulty, reward);
 
-console.log("Mining A New Block...");
-chain.add(new Block(timestamp, [{ from : "#1234", to : "#1", amount : "2"}]));
-console.log("Mining A New Block...");
-chain.add(new Block(timestamp, [{ from : "#145", to : "#2", amount : "1"}]));
+console.log("Making A New Transaction...");
+chain.make(new Transaction(Date.now(), "#1" , "#123", 20));
+console.log("Making A New Transaction...");
+chain.make(new Transaction(Date.now(), "#123" , "#1", 15));
+
+console.log("Mining A Block...");
+chain.minecurrent("#1");
+
+chain.minecurrent("#4");
 
 console.log("\n");
-console.log(JSON.stringify(chain, null, 4));
+console.log(JSON.stringify(chain.chain, null, 4));
 console.log("\n");
 console.log("Valid? ", chain.isvalid().toString());
+
+console.log("#1 Balance:" + chain.getbalance("#1"));
+console.log("#123 Balance:" + chain.getbalance("#123"));
