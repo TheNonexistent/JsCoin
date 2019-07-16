@@ -5,7 +5,7 @@ class BlockChain
 {
     constructor(difficulty, reward, initialcoins)
     {
-        this.chain  = [];
+        this.chain = [];
         this.unminedtransactions = [];
 
         this.difficulty = difficulty;
@@ -40,7 +40,19 @@ class BlockChain
     minecurrent(miner)
     {
         console.log("Mining A Block...");
-        let block = new Block(Date.now(), this.unminedtransactions, this.getlatest().hash);
+
+        let validtransactions = [];
+
+        for (const transaction of this.unminedtransactions)
+        {
+            if (this.validate(transaction))
+            {
+                validtransactions.push(transaction);
+            }
+        }
+        console.log("Validated Transactions: " + validtransactions.length);
+
+        let block = new Block(Date.now(), validtransactions, this.getlatest().hash);
         block.mine(this.difficulty);
 
         console.log("Current Block Mined.");
@@ -70,6 +82,25 @@ class BlockChain
             }
         }
         return true;
+    }
+
+    validate(transaction)
+    {
+        let payer = transaction.from;
+        let receiver = transaction.to
+     
+        let system = ["mint", "genesis"];
+
+        let balance = this.getbalance(payer);
+
+        if ((balance >= transaction.amout || payer === "mint") && this.registered.concat(system).includes(payer) && this.registered.concat(system).includes(receiver))
+        {
+            return true;
+        }
+        else 
+        {
+            return false;
+        }
     }
 
     make(transaction)

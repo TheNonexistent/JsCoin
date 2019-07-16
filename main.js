@@ -1,5 +1,4 @@
 const Transaction = require('./transaction.js');
-const Block = require('./block.js');
 const BlockChain = require('./blockchain.js');
 
 let difficulty = 4;
